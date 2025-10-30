@@ -77,13 +77,6 @@ jobs:
     # Se ejecuta despues de la integracion continua
     needs: [ci]
 
-    # Configuraciones por defecto para este trabajo
-    defaults:
-      # Se ejecuta en el directorio app
-      run:
-        # Todos los comandos se ejecutan dentro de la carpeta app
-        working-directory: app
-
     # Configurar SSH
     steps:
       - name: Instalar cliente SSH
