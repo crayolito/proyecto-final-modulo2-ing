@@ -13,6 +13,7 @@ import app from '../app.js';
 // Crea una nueva prueba para la ruta GET /hola
 test('GET /hola', async (t) => {
     // Crea un servidor temporal usando nuestra aplicación
+    // 0 -> el puerto se asigna automáticamente
     const server = app.listen(0);
 
     // Obtiene el puerto donde está corriendo el servidor
