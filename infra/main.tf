@@ -104,9 +104,9 @@ resource "aws_security_group" "this" {
 # Script de configuracion -> Define como variables locales
 locals {
   # Script que se ejecutar al arranchar 
-  user_data = <<EOF
-    # Le decimos que use el interprete de bash 
+  user_data = <<-EOT
     #!/bin/bash
+    # Le decimos que use el interprete de bash 
 
     # Configuracion para el script para que se detenga si hay un error
     set -euxo pipefail
@@ -126,8 +126,7 @@ locals {
     # Le da permisos al usuario para usar docker
     # Agrega el usuario ec2-user al grupo docker
     usermod -aG docker ec2-user
-    
-    EOF 
+  EOT
 }
 
 # Creamos una maquina virtual (EC2 = Elastic Compute Cloud , Computadora en la nube)
