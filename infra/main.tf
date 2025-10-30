@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 5.50"
+      version = "~> 5.50"
     }
   }
 }
@@ -15,6 +15,7 @@ provider "aws" {
 data "aws_ami" "al2023" {
   most_recent = true
   owners      = ["137112412989"]
+
   filter {
     name   = "name"
     values = ["al2023-ami-*-kernel-6.1-x86_64"]
@@ -39,7 +40,6 @@ resource "aws_default_subnet" "default_az1" {
 resource "aws_security_group" "this" {
   name        = "${var.project_name}-sg"
   description = "Security group para el proyecto ${var.project_name}"
-  vpc_id      = aws_default_vpc.default.id
 
   ingress {
     description = "SSH"
@@ -87,7 +87,6 @@ resource "aws_instance" "this" {
   instance_type          = "t3.micro"
   key_name               = aws_key_pair.this.key_name
   vpc_security_group_ids = [aws_security_group.this.id]
-  subnet_id              = aws_default_subnet.default_az1.id
   user_data              = local.user_data
 
   tags = {

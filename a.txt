@@ -41,3 +41,7 @@ dev ¿ base de datos desarollo
 stage peude tener datos reales abmos prod
 srage es un acopia de porudccion se puede probar el codigo de dev con los datos de producicion tiene su propioa BD
 una vez pasa stage recien pasa a prod
+
+
+Destruir (cuando quieras borrar todo)
+terraform destroy -var public_ssh_key="$(Get-Content .\id_rsa.pub -Raw)"
