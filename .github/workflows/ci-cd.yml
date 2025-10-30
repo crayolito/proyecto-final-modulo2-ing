@@ -85,40 +85,21 @@ jobs:
           APP_PORT: ${{ env.APP_PORT }}
         run: |
           set -euo pipefail
+          # Pasar variables al shell remoto antes de ejecutar el script
           ssh -o IdentitiesOnly=no -o StrictHostKeyChecking=yes \
               ec2-user@"$HOST" "IMAGE='$IMAGE' APP_PORT='$APP_PORT' bash -s" << 'EOF'
           set -euxo pipefail
-
-          # Instalar Docker si no existe
-          if ! command -v docker >/dev/null 2>&1; then
-            if [ -f /etc/os-release ] && grep -qi "amazon linux" /etc/os-release; then
-              # Amazon Linux (incluye AL2023)
-              sudo dnf update -y || true
-              sudo dnf install -y docker || sudo yum install -y docker || true
-            else
-              # Ubuntu/Debian
-              sudo apt-get update -y
-              sudo apt-get install -y docker.io
-            fi
-          fi
-
-          # Iniciar/enable del servicio Docker si aplica
           if command -v systemctl >/dev/null 2>&1; then
-            sudo systemctl enable docker || true
             sudo systemctl start docker || true
           else
             sudo service docker start || true
           fi
 
-          # Asegurar grupo docker para ec2-user (no afecta sesión actual)
-          sudo usermod -aG docker ec2-user || true
+          docker network inspect appnet >/dev/null 2>&1 || docker network create appnet
+          docker ps -q --filter "name=demo-microservice-lab" | grep -q . && docker stop demo-microservice-lab || true
+          docker ps -aq --filter "name=demo-microservice-lab" | grep -q . && docker rm demo-microservice-lab || true
 
-          # Crear red y manejar contenedor usando sudo
-          sudo docker network inspect appnet >/dev/null 2>&1 || sudo docker network create appnet
-          sudo docker ps -q --filter "name=demo-microservice-lab" | grep -q . && sudo docker stop demo-microservice-lab || true
-          sudo docker ps -aq --filter "name=demo-microservice-lab" | grep -q . && sudo docker rm demo-microservice-lab || true
-
-          sudo docker pull "$IMAGE"
-          sudo docker run -d --name demo-microservice-lab --restart unless-stopped \
+          docker pull "$IMAGE"
+          docker run -d --name demo-microservice-lab --restart unless-stopped \
             --network appnet -p 80:"$APP_PORT" "$IMAGE"
           EOF
