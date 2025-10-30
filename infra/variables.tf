@@ -1,7 +1,7 @@
 variable "project_name" {
   description = "Nombre del proyecto para las etiquetas"
   type        = string
-  default     = "pruebas-cicd-crayolito"
+  default     = "cicd-crayolito"
 }
 
 variable "region" {
