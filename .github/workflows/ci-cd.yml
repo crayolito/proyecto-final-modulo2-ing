@@ -134,17 +134,20 @@ jobs:
         run: |
           set -euo pipefail
           # Pasar variables al shell remoto antes de ejecutar el script
+
           # ssh -o IdentitiesOnly=no -o StrictHostKeyChecking=yes -> Permite la autenticacion con la llave publica
           # ec2-user@"$HOST" -> Usuario y direccion del servidor
           # "IMAGE='$IMAGE' APP_PORT='$APP_PORT' bash -s" -> Variables para el script
           # << 'EOF' -> Inicia el script
+
+          ssh -o IdentitiesOnly=no -o StrictHostKeyChecking=yes \
+              ec2-user@"$HOST" "IMAGE='$IMAGE' APP_PORT='$APP_PORT' bash -s" << 'EOF'
+
           # set -euxo pipefail -> Configuracion para parar si hay errores
+          set -euxo pipefail
           # if command -v systemctl >/dev/null 2>&1; then -> Verifica si systemctl esta instalado
           # sudo systemctl start docker || true -> Inicia Docker
           # else -> Si no esta instalado, inicia Docker con service
-          ssh -o IdentitiesOnly=no -o StrictHostKeyChecking=yes \
-              ec2-user@"$HOST" "IMAGE='$IMAGE' APP_PORT='$APP_PORT' bash -s" << 'EOF'
-          set -euxo pipefail
           if command -v systemctl >/dev/null 2>&1; then
             sudo systemctl start docker || true
           else
@@ -155,11 +158,13 @@ jobs:
           # >/dev/null 2>&1 -> Redirige los errores a /dev/null
           # || docker network create appnet -> Si no existe, crea la red
           docker network inspect appnet >/dev/null 2>&1 || docker network create appnet
+
           # docker ps -q --filter "name=demo-microservice-lab" -> Verifica si el contenedor demo-microservice-lab existe
           # | grep -q . -> Verifica si el contenedor existe
           # && docker stop demo-microservice-lab -> Si existe, para el contenedor
           # || true -> Continua el proceso aunque haya un error
           docker ps -q --filter "name=demo-microservice-lab" | grep -q . && docker stop demo-microservice-lab || true
+          
           # docker ps -aq --filter "name=demo-microservice-lab" -> Verifica si el contenedor demo-microservice-lab existe
           # | grep -q . -> Verifica si el contenedor existe
           # && docker rm demo-microservice-lab -> Si existe, elimina el contenedor
@@ -168,11 +173,11 @@ jobs:
 
 
           # docker pull "$IMAGE" -> Descarga la imagen desde Docker Hub
+          # "$IMAGE" -> Nombre de la imagen
+          docker pull "$IMAGE"
           # docker run -d --name demo-microservice-lab --restart unless-stopped -> Crea el contenedor
           # --network appnet -> Usa la red appnet
           # -p 80:"$APP_PORT" -> Mapea el puerto 80 del contenedor al puerto $APP_PORT del host
-          # "$IMAGE" -> Nombre de la imagen
-          docker pull "$IMAGE"
           docker run -d --name demo-microservice-lab --restart unless-stopped \
             --network appnet -p 80:"$APP_PORT" "$IMAGE"
           # EOF -> Fin del script

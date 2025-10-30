@@ -107,19 +107,26 @@ locals {
   user_data = <<EOF
     # Le decimos que use el interprete de bash 
     #!/bin/bash
+
     # Configuracion para el script para que se detenga si hay un error
     set -euxo pipefail
+
     # Actualiza el sistema operativo
     dnf update -y
+    
     # Instala Docker
     dnf install -y docker
-    # Inicia Docker
-    systemctl start docker
+    
     # Hace que Docker se inicie automaticamente al arranchar la maquina
     systemctl enable docker
+    
+    # Inicia Docker
+    systemctl start docker
+
     # Le da permisos al usuario para usar docker
     # Agrega el usuario ec2-user al grupo docker
     usermod -aG docker ec2-user
+    
     EOF 
 }
 
