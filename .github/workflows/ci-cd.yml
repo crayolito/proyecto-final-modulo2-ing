@@ -139,7 +139,6 @@ jobs:
           # ec2-user@"$HOST" -> Usuario y direccion del servidor
           # "IMAGE='$IMAGE' APP_PORT='$APP_PORT' bash -s" -> Variables para el script
           # << 'EOF' -> Inicia el script
-
           ssh -o IdentitiesOnly=no -o StrictHostKeyChecking=yes \
               ec2-user@"$HOST" "IMAGE='$IMAGE' APP_PORT='$APP_PORT' bash -s" << 'EOF'
 
